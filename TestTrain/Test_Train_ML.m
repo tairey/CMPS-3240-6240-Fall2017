@@ -10,36 +10,36 @@ baths=cells{5};
 
 citynum=ones(83,1); 
 y=1;
-for x=2:83
-    if strcmp(city(x),city(x-1))==0
+for i=2:83
+    if strcmp(city(i),city(i-1))==0
         y=y+1;
     end
-    citynum(x)=y/48;
+    citynum(i)=y/48;
 end
 
 %This normalizes the data
 min1=min(sqft);
 max1=max(sqft);
-for x=1:83
-    sqft(x)=(sqft(x)-min1)/max1;
+for i=1:83
+    sqft(i)=(sqft(i)-min1)/(max1-min1);
 end
 
 min2=min(price);
 max2=max(price);
-for x=1:83
-    price(x)=(price(x)-min2)/max2;
+for i=1:83
+    price(i)=(price(i)-min2)/(max2-min2);
 end
 
 min3=min(bedrooms);
 max3=max(bedrooms);
-for x=1:83
-    bedrooms(x)=(bedrooms(x)-min3)/max3;
+for i=1:83
+    bedrooms(i)=(bedrooms(i)-min3)/(max3-min3);
 end
 
 min4=min(baths);
 max4=max(baths);
-for x=1:83
-    baths(x)=(baths(x)-min4)/max4;
+for i=1:83
+    baths(i)=(baths(i)-min4)/(max4-min4);
 end
 
 table(:,1)=[price];
@@ -52,33 +52,41 @@ train=table(1:58,:);
 test=table(59:83,:);
 w=[0 0 0 0];
 
-R=0.03;
-td=0;
-for x=1:57
-    for i=1:4
-        td=train(x+1,i);
-        od=w(i)*train(x,i);
-        dw=R*(td-od)*train(x,i);
-        w(i)=w(i)+dw;
+%R is the chosen learning rate
+R=0.1;
+for i=1:58
+    for j=1:4
+        y1=price(i);
+        y2=w(1)*train(i,1)+w(2)*train(i,2)+w(3)*train(i,3)+w(4)*train(i,4);
+        %Weight update rule:
+        dw=R*train(i,j)*(y1-y2);
+        w(j)=w(j)+dw;
     end
 end
 
 %Now the test
 sumerror=0;
 for i=1:25
-    PredPrice=w(1) + w(2)*test(i,2) + w(3)*test(i,3) + w(4)*test(i,4);
-    RealPrice=test(i,1);
-        if (PredPrice*max2)+min2 > 500000
+    Price1=w(1) + w(2)*test(i,2) + w(3)*test(i,3) + w(4)*test(i,4);
+    PredPrice=Price1*(max2-min2)+min2;
+    RealPrice=price(i)*(max2-min2)+min2;
+    
+    %The following is a simple perceptron that takes the predicted price,
+    %compares it to the selected value, and classifies it as too expensive
+    %or not too expensive.
+        if PredPrice > 700000
             fprintf('House is too expensive\n');
         else
             fprintf('House is not too expensive\n');
         end
-    Error=abs(RealPrice-PredPrice);
-    sumerror=sumerror+Error;
+    %To compute the MSE we first square the difference between the
+    %predicted price and the real price.
+    SqError=(Price1-price(i))^2;
+    sumerror=sumerror+SqError;
 end
 
-%Mean Squared Error:
-MSE=sqrt(sumerror/25);
+%All that's left to calculate Mean Squared Error is finding the mean:
+MSE=sumerror/i;
 fprintf('Mean Squared Error: %f\n',MSE);
     
 
