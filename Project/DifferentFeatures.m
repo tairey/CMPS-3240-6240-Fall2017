@@ -130,7 +130,7 @@ F1=2*precision*recall/(precision+recall)
 
 %Algorithm 4
 %This one normalizes the year the film was released so a film being
-%released later has less of an impact on the release date.
+%released later has less of an impact on the predictor.
 
 for i=1:3176
     Data(i,4)=(Data(i,4)-1915)/100;
