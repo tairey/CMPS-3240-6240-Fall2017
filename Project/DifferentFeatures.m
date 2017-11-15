@@ -105,7 +105,7 @@ F1=2*precision*recall/(precision+recall)
 %Algorithm 3
 %This uses a different function, fitcecoc. It returns a full, trained, 
 %multiclass, error-correcting output codes (ECOC) model using the predictors 
-%given. fitcecoc uses K(K ? 1)/2 binary SVM, where K is the number 
+%given. fitcecoc uses K(K - 1)/2 binary SVM, where K is the number 
 %of unique class labels.
 SVMStruct3=fitcecoc(train2,trainR2)
 label3=predict(SVMStruct3,test2);
